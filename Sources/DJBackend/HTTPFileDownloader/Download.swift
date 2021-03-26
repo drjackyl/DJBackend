@@ -1,3 +1,5 @@
+import Foundation
+
 public struct Download {
     public init(url: URL, destination: URL, progress: Double) {
         self.url = url
