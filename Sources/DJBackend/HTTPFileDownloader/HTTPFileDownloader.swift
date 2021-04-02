@@ -7,7 +7,9 @@ import Combine
 
 public class HTTPFileDownloader {
     
-    // MARK: - Internal API
+    // MARK: - Public API
+    
+    public init() {}
     
     /**
      Starts a download of the given URL and moves the downloaded data to the destination URL on completion
