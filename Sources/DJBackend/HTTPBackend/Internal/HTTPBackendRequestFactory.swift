@@ -39,7 +39,9 @@ class HTTPBackendRequestFactory {
     public enum Error: Swift.Error {
         case baseURLDecompositionFailed
         case urlCompositionFailed
-        case encodingBodyFailed(underlyingError: Swift.Error?)
+        case encodingBodyFailed(underlyingError: Swift.Error)
+        case percentEscapingFormURLEncodedBodyFailed
+        case convertingStringToBytesFailed(encoding: String.Encoding)
     }
     
     
@@ -73,15 +75,18 @@ class HTTPBackendRequestFactory {
     }
     
     private func createDataForHTTPBody(formURLEncodedFields: [HTTPBackendRequest.Body.FormURLEncodedField], encoding: String.Encoding) throws -> Data {
-        let bodyData = formURLEncodedFields
+        let bodyData = try formURLEncodedFields
             .map {
-                "\($0.name)=\($0.value)"
+                guard let percentEncodedValue = $0.value.percentEscapeFormURLEncoded() else {
+                    throw Error.encodingBodyFailed(underlyingError: Error.percentEscapingFormURLEncodedBodyFailed)
+                }
+                return "\($0.name)=\(percentEncodedValue)"
             }
             .joined(separator: "&")
             .data(using: encoding)
         
         guard let data = bodyData else {
-            throw Error.encodingBodyFailed(underlyingError: nil)
+            throw Error.encodingBodyFailed(underlyingError: Error.convertingStringToBytesFailed(encoding: .utf8))
         }
         
         return data

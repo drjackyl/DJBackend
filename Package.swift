@@ -27,8 +27,8 @@ let package = Package(
         .target(
             name: "DJBackend",
             dependencies: []),
-//        .testTarget(
-//            name: "DJBackendTests",
-//            dependencies: ["DJBackend"]),
+        .testTarget(
+            name: "DJBackendTests",
+            dependencies: ["DJBackend"]),
     ]
 )
