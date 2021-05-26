@@ -14,7 +14,7 @@ class HTTPBackendRequestFactory {
         }
         let backendRequest = requestBuilder.buildRequest()
         urlComponents.path += backendRequest.path
-        urlComponents.queryItems = backendRequest.parameters.toURLQueryItems()
+        urlComponents.queryItems = createQueryItemsForRequest(backendRequest)
         
         guard let url = urlComponents.url else {
             throw Error.urlCompositionFailed
@@ -52,6 +52,16 @@ class HTTPBackendRequestFactory {
     
     private let baseURL: URL
     private let jsonEncoder: JSONEncoder = .init()
+    
+    private func createQueryItemsForRequest(_ backendRequest: HTTPBackendRequest) -> [URLQueryItem]? {
+        let queryItems = backendRequest.parameters.toURLQueryItems()
+        if queryItems.count == 0 {
+            // If there are no query-items, the property should be set to nil, since the composed URL would contain a
+            // "?" at the end, if an empty array was set.
+            return nil
+        }
+        return queryItems
+    }
     
     private func createDataForHTTPBody(body: HTTPBackendRequest.Body) throws -> Data {
         switch body {
